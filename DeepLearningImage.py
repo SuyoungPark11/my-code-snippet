@@ -1,10 +1,11 @@
 import torch
+import torch.nn as nn
 from torchvision.io import read_image
 from typing import Callable, Union, Tuple
 import pandas as pd
 import os
 
-class MyDataset(torch.utils.data.Dataset):
+class ImageDataset(torch.utils.data.Dataset):
     def __init__(
         self, 
         root_dir: str, 
@@ -22,3 +23,26 @@ class MyDataset(torch.utils.data.Dataset):
         image = read_image(img_path)
         label = self.image_labels[index]
         return image, label  
+
+
+class Loss(nn.Module):
+    def __init__(
+            self,
+            loss_fn: str
+    ):
+        super(Loss, self).__init__()
+        loss_dict = {
+            "L1" : nn.L1Loss,
+            "MSE" : nn.MSELoss,
+            "CE" : nn.CrossEntropyLoss,
+            "BCE" : nn.BCELoss
+        }
+        self.loss_fn = loss_dict[loss_fn]
+
+    def forward(
+        self, 
+        outputs: torch.Tensor, 
+        targets: torch.Tensor
+    ) -> torch.Tensor:
+    
+        return self.loss_fn(outputs, targets)
