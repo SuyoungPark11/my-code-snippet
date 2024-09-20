@@ -1,14 +1,14 @@
-import torch
-import torch.nn as nn
-from torchvision.io import read_image
-from typing import Callable, Union, Tuple
-import pandas as pd
+import torch # type: ignore
+from torch.utils.data import DataLoader # type: ignore
+from torchvision.io import read_image # type: ignore
+from typing import Union, Tuple
+import pandas as pd # type: ignore
 import os
 
 class ImageDataset(torch.utils.data.Dataset):
     def __init__(
         self, 
-        root_dir: str, 
+        root_dir, 
         info_df: pd.DataFrame, # including labels & path 
     ):
         self.root_dir = root_dir
@@ -24,25 +24,25 @@ class ImageDataset(torch.utils.data.Dataset):
         label = self.image_labels[index]
         return image, label  
 
+train_dataset = ImageDataset(root_dir="train_data_root")
+test_dataset = ImageDataset(root_dir="test_data_root")
 
-class Loss(nn.Module):
-    def __init__(
-            self,
-            loss_fn: str
-    ):
-        super(Loss, self).__init__()
-        loss_dict = {
-            "L1" : nn.L1Loss,
-            "MSE" : nn.MSELoss,
-            "CE" : nn.CrossEntropyLoss,
-            "BCE" : nn.BCELoss
-        }
-        self.loss_fn = loss_dict[loss_fn]
+train_dataloader = DataLoader(
+    train_dataset,
+    batch_size=64,
+    shuffle=True,
+    num_workers=0,
+    drop_last=True
+)
+test_dataloader = DataLoader(
+    test_dataset,
+    batch_size=64,
+    shuffle=True,
+    num_workers=0,
+    drop_last=True
+)
 
-    def forward(
-        self, 
-        outputs: torch.Tensor, 
-        targets: torch.Tensor
-    ) -> torch.Tensor:
-    
-        return self.loss_fn(outputs, targets)
+
+
+
+
